@@ -375,6 +375,32 @@ test('attendees open on hover and keyboard focus without a click',async({page})=
 });
 
 
+test('attendees open on a mobile tap and close outside or with Escape',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:375,height:812},hasTouch:true,isMobile:true});
+ const page=await context.newPage();
+ try{
+  const {errors}=await fixture(page);
+  await page.goto('/');
+  const trigger=page.locator('button[hlmPopoverTrigger]').filter({visible:true}).first();
+  const card=page.locator('[data-slot="popover-content"]');
+  await expect(card).toHaveCount(0);
+  await trigger.tap();
+  await expect(card).toBeVisible();
+  await expect(card.getByText('Jane',{exact:true})).toBeVisible();
+  await expect(trigger).toHaveAttribute('aria-expanded','true');
+  const bounds=await card.boundingBox();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(375);
+  await page.getByRole('heading',{name:'Book your massage',exact:true}).tap();
+  await expect(card).toHaveCount(0);
+  await trigger.tap();
+  await expect(card).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(card).toHaveCount(0);
+  expect(errors).toEqual([]);
+ }finally{await context.close();}
+});
+
 test('many dates paginate with a white selected dot and no mobile overflow',async({page})=>{
  const {errors}=await fixture(page,false,false,true);await page.setViewportSize({width:375,height:812});await page.goto('/');const dates=page.locator('[data-date-choice]');await expect(dates).toHaveCount(14);const first=dates.first();await expect(first).toHaveAttribute('aria-selected','true');await expect(first.locator('span span')).toHaveCSS('background-color','rgb(255, 255, 255)');await expect(first).toHaveCSS('background-color','rgb(0, 0, 0)');
  const campaign=page.getByRole('tab',{name:'Workplace wellness',exact:true});expect((await first.boundingBox())!.height).toBe((await campaign.boundingBox())!.height);const book=page.getByRole('button',{name:'Select time 09:00 – 09:30',exact:true});const full=page.getByRole('button',{name:'Select time 10:00 – 10:30',exact:true});expect((await book.boundingBox())!.width).toBe((await full.boundingBox())!.width);
