@@ -1,0 +1,73 @@
+<section hlmCard class="min-w-0">
+ <div hlmCardContent class="space-y-4">
+  <div class="grid grid-cols-2 items-end gap-3 sm:gap-4 xl:grid-cols-[minmax(200px,1fr)_minmax(180px,1fr)_minmax(150px,1fr)_auto]">
+   <hlm-field class="col-span-2 xl:col-span-1"><label hlmFieldLabel for="bookings-campaign">Campaign</label>@if(campaignChoices.length){<hlm-select [itemToString]="campaignLabel" [value]="campaign.id" (valueChange)="campaignChange.emit($any($event))"><hlm-select-trigger buttonId="bookings-campaign" class="w-full"><hlm-select-value/></hlm-select-trigger><hlm-select-content *hlmSelectPortal>@for(c of campaignChoices;track c.id){<hlm-select-item [value]="c.id">{{c.name}}</hlm-select-item>}</hlm-select-content></hlm-select>}@else{<div class="flex h-9 items-center gap-3"><span class="font-medium">{{campaign.name}}</span></div>}</hlm-field>
+   <hlm-field><label hlmFieldLabel for="booking-date-filter">Date</label>@if(loading()){<div hlmSkeleton class="h-9 w-full" role="status" aria-label="Loading booking dates"></div>}@else{<hlm-select [itemToString]="dateOptionLabel" [(ngModel)]="date" (ngModelChange)="filterChanged()"><hlm-select-trigger buttonId="booking-date-filter" class="w-full"><hlm-select-value placeholder="All dates"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal><hlm-select-item value="">All dates</hlm-select-item>@for(day of days();track day){<hlm-select-item [value]="day">{{dateLabel(day)}}</hlm-select-item>}</hlm-select-content></hlm-select>}</hlm-field>
+   <hlm-field><label hlmFieldLabel for="booking-status-filter">Status</label><hlm-select [itemToString]="statusLabel" [(ngModel)]="status" (ngModelChange)="filterChanged()"><hlm-select-trigger buttonId="booking-status-filter" class="w-full"><hlm-select-value placeholder="All statuses"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal><hlm-select-item value="">All statuses</hlm-select-item><hlm-select-item value="confirmed">Confirmed</hlm-select-item><hlm-select-item value="cancelled">Cancelled</hlm-select-item></hlm-select-content></hlm-select></hlm-field>
+   <div class="col-span-2 text-xs text-muted-foreground xl:col-span-1 xl:pb-2">@if(loading()){<div hlmSkeleton class="h-4 w-36" role="status" aria-label="Loading reservation count"></div>}@else if(!error()){<p>{{total()}} {{total()===1?'reservation':'reservations'}} · Mauritius time</p>}</div>
+  </div>
+  <hlm-field><label hlmFieldLabel for="employee-search" class="sr-only">Find an employee</label><input hlmInput id="employee-search" type="search" [(ngModel)]="search" (ngModelChange)="filterChanged()" placeholder="Search name, employee code or business unit…"></hlm-field>
+  @if(error()){<div hlmAlert variant="destructive"><h3 hlmAlertTitle>Unable to load bookings</h3><p hlmAlertDescription>{{error()}}</p><button hlmBtn variant="outline" size="sm" (click)="load()">Try again</button></div>}
+  <div hlmTableContainer [attr.aria-busy]="loading()" [attr.role]="loading()?'status':null" [attr.aria-label]="loading()?'Loading bookings':null"><table hlmTable><thead hlmTHead><tr hlmTr><th hlmTh>Employee</th><th hlmTh class="hidden xl:table-cell">Business unit</th><th hlmTh class="hidden xl:table-cell">Date &amp; time</th><th hlmTh class="hidden xl:table-cell">Status</th><th hlmTh class="text-right">Actions</th></tr></thead><tbody hlmTBody>
+   @if(loading()){@for(i of [1,2,3,4,5];track i){<tr hlmTr aria-hidden="true">
+    <td hlmTd><div class="space-y-2"><div hlmSkeleton class="h-4 w-28 sm:w-32"></div><div hlmSkeleton class="h-3 w-8"></div><div hlmSkeleton class="h-4 w-24 xl:hidden"></div><div hlmSkeleton class="h-5 w-20 xl:hidden"></div></div></td>
+    <td hlmTd class="hidden xl:table-cell"><div hlmSkeleton class="h-4 w-24"></div></td>
+    <td hlmTd class="hidden xl:table-cell"><div hlmSkeleton class="h-4 w-28"></div></td>
+    <td hlmTd class="hidden xl:table-cell"><div hlmSkeleton class="h-5 w-20"></div></td>
+    <td hlmTd><div hlmSkeleton class="ml-auto h-7 w-24"></div></td>
+   </tr>}}
+   @else{@for(b of allRows();track b.id){
+    <ng-template #appointment><p class="whitespace-normal text-sm">{{dayOf(b)?dateLabel(dayOf(b)):'Date unavailable'}}</p><p class="text-xs tabular-nums text-muted-foreground">{{timeLabel(b.slot_id)}}</p></ng-template>
+    <ng-template #bookingBadge><span hlmBadge [variant]="b.status==='confirmed'?'success':b.status==='cancelled'?'destructive':'outline'">{{b.status==='confirmed'?'Confirmed':b.status==='cancelled'?'Cancelled':b.status}}</span></ng-template>
+    <tr hlmTr>
+     <td hlmTd class="max-w-56 whitespace-normal align-top xl:align-middle">
+      <p class="break-words font-medium">{{b.employee_name}}</p>
+      <p class="text-xs text-muted-foreground">{{b.employee_code}}<span class="xl:hidden"> · {{b.sbu}}</span></p>
+      <div class="mt-2 xl:hidden"><ng-container *ngTemplateOutlet="appointment"/></div>
+      <div class="mt-2 xl:hidden"><ng-container *ngTemplateOutlet="bookingBadge"/></div>
+     </td>
+     <td hlmTd class="hidden whitespace-normal xl:table-cell">{{b.sbu}}</td>
+     <td hlmTd class="hidden xl:table-cell"><ng-container *ngTemplateOutlet="appointment"/></td>
+     <td hlmTd class="hidden xl:table-cell"><ng-container *ngTemplateOutlet="bookingBadge"/></td>
+     <td hlmTd class="text-right align-top xl:align-middle">
+      @if(b.status==='confirmed'){
+       <div class="flex flex-col items-end gap-1 xl:flex-row xl:justify-end xl:gap-2">
+        <button hlmBtn variant="outline" size="sm" class="max-sm:min-h-11" (click)="edit(b)">Edit booking</button>
+        <button hlmBtn variant="ghost" size="sm" class="text-destructive hover:bg-destructive/10 hover:text-destructive max-sm:min-h-11" (click)="requestCancel(b)">Cancel booking</button>
+       </div>
+      }@else if(b.status==='cancelled'){
+       <div class="ml-auto max-w-56 whitespace-normal text-xs"><p>Cancelled by {{b.cancelled_by_name||'an administrator'}}</p>@if(b.cancelled_at){<p class="tabular-nums text-muted-foreground">{{cancelledTime(b.cancelled_at)}}</p>}</div>
+      }@else{<span class="text-muted-foreground">—</span>}
+   </td></tr>}@empty{<tr hlmTr><td hlmTd colspan="5"><div hlmEmpty><div hlmEmptyHeader><h3 hlmEmptyTitle>{{search||date||status?'No matching bookings':'No bookings yet'}}</h3><p hlmEmptyDescription>Employee reservations appear here. Adjust the filters to see other bookings.</p></div></div></td></tr>}}
+  </tbody></table></div>
+ </div>
+ <div hlmCardFooter class="flex flex-wrap items-center justify-between gap-3 border-t pt-4">@if(loading()){<div hlmSkeleton class="h-4 w-36" role="status" aria-label="Loading booking pagination"></div>}@else if(!error()){<p class="text-xs text-muted-foreground">Page {{page+1}} · {{total()}} {{total()===1?'booking':'bookings'}}</p>}<div class="flex gap-2"><button hlmBtn variant="outline" size="sm" (click)="changePage(-1)" [disabled]="loading()||page===0">Previous</button><button hlmBtn variant="outline" size="sm" (click)="changePage(1)" [disabled]="loading()||(page+1)*10>=total()">Next</button></div></div>
+</section>
+<hlm-dialog #editor [disableClose]="saving()" (closed)="draft=null">
+ <hlm-dialog-content *hlmDialogPortal class="max-h-[90dvh] overflow-y-auto sm:max-w-lg" [showCloseButton]="!saving()">
+  <hlm-dialog-header><h2 hlmDialogTitle>Edit booking</h2><p hlmDialogDescription>Update employee details or choose another time in {{campaign.name}}.</p></hlm-dialog-header>
+  @if(draft){<form #form="ngForm" class="space-y-5" (ngSubmit)="form.valid && review()"><fieldset [disabled]="saving()" class="space-y-5"><hlm-field-group>
+   <hlm-field><label hlmFieldLabel for="edit-booking-name">Full name</label><input hlmInput id="edit-booking-name" name="name" [(ngModel)]="draft.employee_name" maxlength="120" required></hlm-field>
+   <hlm-field><label hlmFieldLabel for="edit-booking-code">Employee code</label><input hlmInput id="edit-booking-code" name="code" [(ngModel)]="draft.employee_code" maxlength="120" required></hlm-field>
+   <hlm-field><label hlmFieldLabel for="edit-booking-sbu">Business unit</label><hlm-select class="w-full" name="sbu" [(ngModel)]="draft.sbu" required [disabled]="saving()"><hlm-select-trigger buttonId="edit-booking-sbu" class="w-full"><hlm-select-value placeholder="Select an option"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal>@for(sbu of sbus;track sbu){<hlm-select-item [value]="sbu">{{sbu}}</hlm-select-item>}</hlm-select-content></hlm-select></hlm-field>
+   <hlm-field><label hlmFieldLabel for="edit-booking-slot">Massage date and time</label><hlm-select [itemToString]="bookingSlotLabel" class="w-full" name="slot" [(ngModel)]="draft.slot_id" required [disabled]="saving()"><hlm-select-trigger buttonId="edit-booking-slot" class="w-full"><hlm-select-value placeholder="Select an option"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal>@for(s of destinations();track s.id){<hlm-select-item [value]="s.id">{{dateLabel(dayKey(s.start_time))}} · {{timeLabel(s.id)}}{{s.id===originalSlot ? ' (current)' : ' · '+(s.capacity-s.booked_count)+' places left'}}</hlm-select-item>}</hlm-select-content></hlm-select><p hlmFieldDescription>Review your changes before saving. One booking per employee in each campaign.</p></hlm-field>
+  </hlm-field-group>@if(editError()){<div hlmAlert variant="destructive"><h3 hlmAlertTitle>Booking could not be saved</h3><p hlmAlertDescription>{{editError()}}</p></div>}<hlm-dialog-footer><button hlmBtn variant="outline" type="button" [disabled]="saving()" (click)="close()">Cancel</button><button hlmBtn type="submit" [disabled]="saving()||form.invalid||!changes().length">{{saving() ? 'Saving…' : 'Save booking'}}</button></hlm-dialog-footer></fieldset></form>}
+ </hlm-dialog-content>
+</hlm-dialog>
+
+<hlm-alert-dialog #confirmation [disableClose]="saving()">
+ <hlm-alert-dialog-content *hlmAlertDialogPortal class="max-h-[85dvh] overflow-y-auto sm:max-w-xl">
+  <hlm-alert-dialog-header><h2 hlmAlertDialogTitle>Review booking changes</h2><p hlmAlertDialogDescription>Only the changes below will be saved. All times are in Mauritius time.</p></hlm-alert-dialog-header>
+  <div hlmTableContainer><table hlmTable><thead hlmTHead><tr hlmTr><th hlmTh>Field</th><th hlmTh>Before</th><th hlmTh>After</th></tr></thead><tbody hlmTBody>@for(change of changes();track change.label){<tr hlmTr><td hlmTd class="font-medium">{{change.label}}</td><td hlmTd class="whitespace-normal break-words text-muted-foreground">{{change.before}}</td><td hlmTd class="whitespace-normal break-words font-medium">{{change.after}}</td></tr>}</tbody></table></div>
+  <hlm-alert-dialog-footer><button hlmAlertDialogCancel variant="outline" [disabled]="saving()">Back to editing</button><button hlmAlertDialogAction (click)="save()" [disabled]="saving()">{{saving() ? 'Saving…' : 'Save'}}</button></hlm-alert-dialog-footer>
+ </hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<hlm-alert-dialog #cancelDialog [disableClose]="cancelling()">
+ <hlm-alert-dialog-content *hlmAlertDialogPortal class="max-h-[85dvh] overflow-y-auto sm:max-w-lg">
+  <hlm-alert-dialog-header><h2 hlmAlertDialogTitle>Cancel this booking?</h2><p hlmAlertDialogDescription>This will release the place. The booking will stay in the list with your name as the administrator who cancelled it.</p></hlm-alert-dialog-header>
+  @if(cancelTarget){<div hlmAlert><h3 hlmAlertTitle>{{cancelTarget.employee_name}}</h3><p hlmAlertDescription>Employee code: {{cancelTarget.employee_code}}<br>{{slotLabel(cancelTarget.slot_id)}} · Mauritius time</p></div>}
+  @if(cancelError()){<div hlmAlert variant="destructive"><h3 hlmAlertTitle>Booking could not be cancelled</h3><p hlmAlertDescription>{{cancelError()}}</p></div>}
+  <hlm-alert-dialog-footer><button hlmAlertDialogCancel variant="outline" [disabled]="cancelling()">Keep booking</button><button hlmAlertDialogAction variant="destructive" [disabled]="cancelling()" (click)="cancelBooking()">{{cancelling()?'Cancelling…':'Cancel booking'}}</button></hlm-alert-dialog-footer>
+ </hlm-alert-dialog-content>
+</hlm-alert-dialog>

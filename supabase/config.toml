@@ -1,0 +1,2 @@
+[functions.request-admin-sign-in]
+verify_jwt = false

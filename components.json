@@ -1,0 +1,6 @@
+{
+  "style": "nova",
+  "iconLibrary": "lucide",
+  "componentsPath": "src/ui",
+  "importAlias": "@spartan-ng/helm"
+}

@@ -1,0 +1,213 @@
+<div hlmSidebarWrapper>
+ @if(admin()){
+ <hlm-sidebar collapsible="icon">
+  <div hlmSidebarHeader class="p-2"><ul hlmSidebarMenu><li hlmSidebarMenuItem><a hlmSidebarMenuButton size="lg" href="./" tooltip="Pause · Employee Wellness" aria-label="Pause Employee Wellness"><img src="brand/pause-icon.svg" width="32" height="32" class="size-8 shrink-0" alt=""/><div class="grid text-left group-data-[collapsible=icon]:hidden"><span class="font-semibold">Pause</span><span class="text-xs text-muted-foreground">Employee Wellness</span></div></a></li></ul></div>
+  <div hlmSidebarContent><div hlmSidebarGroup class="px-3 py-4 group-data-[collapsible=icon]:px-2"><div hlmSidebarGroupLabel class="mb-3 px-3">Management</div><div hlmSidebarGroupContent><ul hlmSidebarMenu class="gap-2">
+   <li hlmSidebarMenuItem><button hlmSidebarMenuButton tooltip="Campaigns" aria-label="Campaigns" class="h-11 gap-3 px-3 data-[active=true]:bg-neutral-200 data-[active=true]:hover:bg-neutral-200 data-[active=true]:font-semibold" closeMobileSidebarOnClick [isActive]="tab==='campaigns'" (click)="navigate('campaigns')"><ng-icon name="lucideMegaphone"/><span>Campaigns</span></button></li>
+   <li hlmSidebarMenuItem><button hlmSidebarMenuButton tooltip="Bookings" aria-label="Bookings" class="h-11 gap-3 px-3 data-[active=true]:bg-neutral-200 data-[active=true]:hover:bg-neutral-200 data-[active=true]:font-semibold" closeMobileSidebarOnClick [isActive]="tab==='bookings'" (click)="navigate('bookings')"><ng-icon name="lucideCalendarCheck"/><span>Bookings</span></button></li>
+   <li hlmSidebarMenuItem><button hlmSidebarMenuButton tooltip="Business units" aria-label="Business units" class="h-11 gap-3 px-3 data-[active=true]:bg-neutral-200 data-[active=true]:hover:bg-neutral-200 data-[active=true]:font-semibold" closeMobileSidebarOnClick [isActive]="tab==='settings'" (click)="navigate('settings')"><ng-icon name="lucideBuilding2"/><span>Business units</span></button></li>
+   <li hlmSidebarMenuItem><button hlmSidebarMenuButton tooltip="Administrators" aria-label="Administrators" class="h-11 gap-3 px-3 data-[active=true]:bg-neutral-200 data-[active=true]:hover:bg-neutral-200 data-[active=true]:font-semibold" closeMobileSidebarOnClick [isActive]="tab==='admins'" (click)="navigate('admins')"><ng-icon name="lucideUsers"/><span>Administrators</span></button></li>
+  </ul></div></div><div hlmSidebarGroup class="mt-auto px-3 group-data-[collapsible=icon]:px-2"><ul hlmSidebarMenu><li hlmSidebarMenuItem><a hlmSidebarMenuButton tooltip="Employee bookings" aria-label="Employee bookings" class="h-11 gap-3 px-3" href="./"><ng-icon name="lucideExternalLink"/><span>Employee bookings</span></a></li></ul></div></div>
+  <div hlmSidebarFooter class="p-2"><ul hlmSidebarMenu><li hlmSidebarMenuItem>
+   @if(profileLoading()){<div class="flex items-center gap-2 p-2" role="status" aria-label="Loading user profile"><div hlmSkeleton class="size-8 shrink-0 rounded-full"></div><div class="grid flex-1 gap-2 group-data-[collapsible=icon]:hidden"><div hlmSkeleton class="h-4 w-24"></div><div hlmSkeleton class="h-3 w-full"></div></div></div>}
+   @else{<button hlmSidebarMenuButton size="lg" [hlmDropdownMenuTrigger]="userMenu" #accountTrigger="hlmDropdownMenuTrigger" (keydown.escape)="closeAccountMenu($event)" side="right" align="end" class="gap-2 data-[state=open]:bg-sidebar-accent" [attr.aria-label]="'Account menu for '+(profileName()||profileEmail())"><span hlmAvatar><span hlmAvatarFallback>{{initials()}}</span></span><div class="grid min-w-0 flex-1 text-left group-data-[collapsible=icon]:hidden"><span class="truncate font-semibold">{{profileName()||'Administrator'}}</span><span class="truncate text-xs text-muted-foreground">{{profileEmail()}}</span></div><ng-icon name="lucideChevronsUpDown" class="ml-auto group-data-[collapsible=icon]:hidden" aria-hidden="true"/></button>}
+  </li></ul></div>
+ </hlm-sidebar>
+ }
+ <main hlmSidebarInset class="min-w-0">
+@if(!admin()){<header class="border-b"><div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-8"><a hlmBtn variant="ghost" href="./" class="h-auto flex-col items-start gap-0.5 px-2 py-1"><span class="text-lg font-semibold leading-tight">Pause</span><span class="text-xs font-normal text-muted-foreground">Employee Wellness</span></a><a hlmBtn variant="ghost" href="./">Employee bookings</a></div></header>}
+<ng-template #userMenu><div hlmDropdownMenu class="w-64" (keydown.escape)="closeAccountMenu($event)"><div hlmDropdownMenuLabel class="flex items-center gap-2 p-2"><span hlmAvatar><span hlmAvatarFallback>{{initials()}}</span></span><div class="min-w-0"><p class="truncate text-sm font-semibold text-foreground">{{profileName()||'Administrator'}}</p><p class="truncate font-normal">{{profileEmail()}}</p></div></div><div hlmDropdownMenuSeparator></div><a hlmDropdownMenuItem href="./" (keydown.escape)="closeAccountMenu($event)">Employee bookings</a><div hlmDropdownMenuSeparator></div><button hlmDropdownMenuItem (keydown.escape)="closeAccountMenu($event)" (triggered)="signOutDialog.open()">Sign out</button></div></ng-template>
+<div class="mx-auto w-full min-w-0 max-w-7xl space-y-6 px-4 py-6 sm:px-8">
+ @if(!ready()){
+  <p class="text-sm text-muted-foreground" role="status">Verifying administrator access…</p>
+ }@else if(!admin()){
+  <div class="flex min-h-[65vh] items-center justify-center"><section hlmCard class="w-full max-w-sm">
+   <div hlmCardHeader><h1 hlmCardTitle>Administrator sign-in</h1><p hlmCardDescription>Enter your admin email to receive a secure sign-in link.</p></div>
+   <div hlmCardContent><form #loginForm="ngForm" class="space-y-5" (ngSubmit)="loginForm.valid && login()"><hlm-field><label hlmFieldLabel for="admin-email">Email address</label><input hlmInput id="admin-email" type="email" name="email" [(ngModel)]="email" required email autocomplete="email" enterkeyhint="send" [disabled]="busy()" placeholder="name@company.com"></hlm-field><button hlmBtn class="w-full" type="submit" [disabled]="busy()||loginForm.invalid||resendSeconds()>0">{{busy() ? 'Sending…' : resendSeconds()>0 ? 'Try again in '+resendSeconds()+'s' : linkSent() ? 'Send another link' : 'Send sign-in link'}}</button></form>
+    @if(loginNotice()){<div hlmAlert variant="destructive" class="mt-4"><h2 hlmAlertTitle>Unable to send link</h2><p hlmAlertDescription>{{loginNotice()}}</p></div>}
+    @if(linkSent()){<div hlmAlert class="mt-4"><h2 hlmAlertTitle>Check your email</h2><p hlmAlertDescription>If this email has admin access, you’ll receive a sign-in link. Check your inbox and spam folder.</p></div>}
+   </div>
+  </section></div>
+ }@else{
+  <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+   <div class="flex min-w-0 items-center gap-2">
+    <button hlmSidebarTrigger class="max-sm:size-11" [attr.aria-label]="sidebar.isMobile()?'Open navigation':'Toggle navigation'"></button>
+    <h1 class="text-2xl font-semibold tracking-tight">{{pageTitle}}</h1>
+   </div>
+   @if(tab==='campaigns'){
+    @if(editing||bookingCampaign){<button hlmBtn variant="outline" [disabled]="busy()" (click)="editing=false;bookingCampaign=null">Back to campaigns</button>}
+    @else{<button hlmBtn (click)="openEditor()">New campaign</button>}
+   }@else if(tab==='admins'){
+    @if(adminUsers(); as directory){<button hlmBtn (click)="directory.edit()" [disabled]="directory.loading()||!!directory.error()">Add administrator</button>}
+   }
+  </div>
+  <div>
+
+   @if(tab==='campaigns'){<section class="space-y-6">
+    @if(bookingCampaign){<admin-bookings [campaign]="bookingCampaign" (back)="bookingCampaign=null" (saved)="notify($event);load()"/>}
+    @else if(editing){
+     <section hlmCard>
+      <form #campaignForm="ngForm" (ngSubmit)="campaignForm.valid && confirmSave(publishOnSave ? 'published' : 'draft')">
+       <fieldset [disabled]="busy()">
+        <div hlmCardContent class="space-y-6">
+         <hlm-field-group class="grid gap-5 sm:grid-cols-2"><hlm-field><label hlmFieldLabel for="campaign-name">Campaign name</label><input hlmInput id="campaign-name" name="name" [(ngModel)]="name" required maxlength="120" placeholder="November wellness sessions"></hlm-field><hlm-field><label hlmFieldLabel for="campaign-description">Description <span class="font-normal text-muted-foreground">(optional)</span></label><input hlmInput id="campaign-description" name="description" [(ngModel)]="description" maxlength="2000" placeholder="A moment to recharge"></hlm-field></hlm-field-group>
+         <hlm-separator/>
+         <div class="flex items-center justify-between gap-4"><div><h3 class="text-sm font-medium">Massage dates</h3><p class="text-xs text-muted-foreground">All times are in Mauritius.</p></div><button hlmBtn variant="outline" type="button" (click)="addDate()">Add a date</button></div>
+         @if(existingDates().length||dates.length){
+          <div hlmTableContainer><table hlmTable><thead hlmTHead><tr hlmTr><th hlmTh>Date and schedule</th><th hlmTh>Status</th><th hlmTh class="text-right">Actions</th></tr></thead><tbody hlmTBody>
+           @for(group of existingDates();track group.id){<tr hlmTr><td hlmTd>{{group.label}}</td><td hlmTd><span hlmBadge variant="success">Saved</span></td><td hlmTd class="text-right"><div class="flex justify-end gap-2"><button hlmBtn variant="ghost" size="sm" type="button" (click)="editScheduled(group.id)" [attr.aria-label]="'Edit scheduled date: '+group.label">Edit</button><button hlmBtn variant="ghost" size="sm" type="button" class="text-destructive" (click)="requestDateRemoval(group.id)" [attr.aria-label]="'Remove scheduled date: '+group.label">Remove</button></div></td></tr>}
+           @for(day of dates;track $index;let i=$index){<tr hlmTr><td hlmTd><p class="font-medium">{{readableDate(day.date)}}</p><p class="text-xs text-muted-foreground">{{day.start}}–{{day.end}} · {{datePreview(day)}} slots · {{datePreview(day)*day.capacity}} places</p></td><td hlmTd><span hlmBadge variant="warning">{{day.sessionId ? 'Edited' : 'New'}} · unsaved</span></td><td hlmTd class="text-right"><div class="flex justify-end gap-2"><button hlmBtn variant="ghost" size="sm" type="button" (click)="openDate(day,i)">Edit</button><button hlmBtn variant="ghost" size="sm" type="button" (click)="requestDateDiscard(i)">Discard</button></div></td></tr>}
+          </tbody></table></div>
+         }@else{<div hlmEmpty class="border"><div hlmEmptyHeader><h3 hlmEmptyTitle>No dates added</h3><p hlmEmptyDescription>Add at least one massage date to accept bookings.</p></div></div>}
+         <p class="text-xs text-muted-foreground">Date changes apply when you save the campaign. Dates with bookings cannot be edited or removed.</p>
+         <hlm-separator/>
+         <hlm-field><span class="text-sm font-medium">Campaign visibility</span><div class="flex items-center gap-3"><hlm-switch aria-label="Accept bookings" inputId="campaign-accept-bookings" [checked]="publishOnSave" (checkedChange)="publishOnSave=$event" [disabled]="busy()" aria-describedby="visibility-description"/><label hlmLabel for="campaign-accept-bookings">Accept bookings</label><span hlmBadge variant="secondary">{{publishOnSave ? 'On' : 'Off'}}</span></div><p hlmFieldDescription id="visibility-description" aria-live="polite">{{publishOnSave ? 'Employees can see and book this campaign after you save.' : 'Only admins can see this campaign. Employees can’t view or book it.'}}</p></hlm-field>
+         @if(saveError()){<div hlmAlert variant="destructive"><h3 hlmAlertTitle>Campaign could not be saved</h3><p hlmAlertDescription>{{saveError()}}</p></div>}
+        </div>
+        <div hlmCardFooter class="justify-end gap-2 border-t pt-4"><button hlmBtn variant="outline" type="button" (click)="editing=false" [disabled]="busy()">Discard changes</button><button hlmBtn type="submit" [disabled]="busy()||campaignForm.invalid">{{busy() ? 'Saving…' : campaignSaveAction}}</button></div>
+       </fieldset>
+      </form>
+     </section>
+    }@else{
+     <section hlmCard>
+      <div hlmCardContent class="space-y-4">
+       <div class="grid gap-4 sm:grid-cols-[1fr_180px]"><hlm-field><label hlmFieldLabel for="campaign-search">Find a campaign</label><input hlmInput id="campaign-search" type="search" [(ngModel)]="search" (ngModelChange)="campaignFilterChanged()" placeholder="Search campaigns…"></hlm-field><hlm-field><label hlmFieldLabel for="campaign-status">Status</label><hlm-select [itemToString]="statusOptionLabel" class="w-full" [(ngModel)]="statusFilter" (ngModelChange)="campaignFilterChanged()"><hlm-select-trigger buttonId="campaign-status" class="w-full"><hlm-select-value placeholder="Select an option"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal><hlm-select-item value="all">All campaigns</hlm-select-item><hlm-select-item value="published">Open for bookings</hlm-select-item><hlm-select-item value="draft">Unpublished</hlm-select-item><hlm-select-item value="closed">Closed</hlm-select-item></hlm-select-content></hlm-select></hlm-field></div>
+       @if(campaignLoading()){
+        <div role="status" aria-label="Loading campaigns" aria-busy="true"><div hlmTableContainer><table hlmTable><thead hlmTHead><tr hlmTr><th hlmTh>Campaign</th><th hlmTh class="hidden xl:table-cell">Status</th><th hlmTh class="hidden xl:table-cell">Dates</th><th hlmTh class="hidden xl:table-cell">Bookings</th><th hlmTh class="hidden xl:table-cell">Last saved</th><th hlmTh class="text-right">Actions</th></tr></thead><tbody hlmTBody aria-hidden="true">@for(i of [1,2,3,4];track i){<tr hlmTr>
+         <td hlmTd><div class="space-y-2"><div hlmSkeleton class="h-4 w-28 sm:w-36"></div><div hlmSkeleton class="hidden h-3 w-24 xl:block"></div><div hlmSkeleton class="h-5 w-20 xl:hidden"></div></div></td>
+         <td hlmTd class="hidden xl:table-cell"><div hlmSkeleton class="h-5 w-24"></div></td>
+         <td hlmTd class="hidden xl:table-cell"><div class="space-y-2"><div hlmSkeleton class="h-4 w-12"></div><div hlmSkeleton class="h-3 w-28"></div></div></td>
+         <td hlmTd class="hidden xl:table-cell"><div hlmSkeleton class="h-4 w-6"></div></td>
+         <td hlmTd class="hidden xl:table-cell"><div class="space-y-2"><div hlmSkeleton class="h-3 w-28"></div><div hlmSkeleton class="h-3 w-36"></div></div></td>
+         <td hlmTd><div hlmSkeleton class="ml-auto h-7 w-24"></div></td>
+        </tr>}</tbody></table></div></div>
+       }@else if(campaignError()&&!campaigns().length){<div hlmAlert variant="destructive"><h3 hlmAlertTitle>Unable to load campaigns</h3><p hlmAlertDescription>{{campaignError()}}</p><button hlmBtn variant="outline" (click)="retryCampaigns()">Try again</button></div>}
+       @else if(campaigns().length){
+        <div hlmTableContainer><table hlmTable><thead hlmTHead><tr hlmTr><th hlmTh>Campaign</th><th hlmTh class="hidden xl:table-cell">Status</th><th hlmTh class="hidden xl:table-cell">Dates</th><th hlmTh class="hidden xl:table-cell">Bookings</th><th hlmTh class="hidden xl:table-cell">Last saved</th><th hlmTh class="text-right">Actions</th></tr></thead><tbody hlmTBody>
+         @for(c of campaigns();track c.id){
+          <ng-template #campaignBadge><span hlmBadge [variant]="c.status==='published'?'success':c.status==='draft'?'warning':'destructive'">{{c.status==='published'?'Bookings open':c.status==='draft'?'Unpublished':'Closed'}}</span></ng-template>
+          <ng-template #campaignSchedule><p>{{count(c.id)}} {{count(c.id)===1?'date':'dates'}}</p><p class="max-w-48 whitespace-normal text-xs text-muted-foreground">{{campaignDates(c.id).join(', ')}}</p></ng-template>
+          <ng-template #campaignSaved>@if(saveInfo()[c.id]; as info){<p class="text-xs tabular-nums">{{historyTime(info.saved_at)}}</p><p class="whitespace-normal text-xs text-muted-foreground">{{info.saved_by}}</p>}@else{<span class="text-xs text-muted-foreground">Not available</span>}</ng-template>
+          <tr hlmTr>
+           <td hlmTd class="max-w-64 whitespace-normal align-top xl:align-middle">
+            <p class="break-words font-medium">{{c.name}}</p>
+            @if(c.description){<p class="hidden text-xs text-muted-foreground xl:block">{{c.description}}</p>}
+            <div class="mt-1 space-y-1 xl:hidden">
+             <ng-container *ngTemplateOutlet="campaignBadge"/>
+             <div brnCollapsible>
+              <button hlmBtn brnCollapsibleTrigger variant="ghost" size="sm" class="group/details -ml-1 px-1" [attr.aria-label]="'Details for '+c.name">Details<ng-icon name="lucideChevronDown" class="group-data-[state=open]/details:rotate-180" aria-hidden="true"/></button>
+              <div brnCollapsibleContent [id]="'campaign-details-'+c.id" class="space-y-2 pb-1 data-[state=closed]:hidden">
+               @if(c.description){<p class="break-words text-xs text-muted-foreground">{{c.description}}</p>}
+               <ng-container *ngTemplateOutlet="campaignSchedule"/>
+               <p class="text-xs tabular-nums">{{campaignBookings(c.id)}} {{campaignBookings(c.id)===1?'booking':'bookings'}}</p>
+               <div><p class="text-xs text-muted-foreground">Last saved</p><ng-container *ngTemplateOutlet="campaignSaved"/></div>
+              </div>
+             </div>
+            </div>
+           </td>
+           <td hlmTd class="hidden xl:table-cell"><ng-container *ngTemplateOutlet="campaignBadge"/></td>
+           <td hlmTd class="hidden xl:table-cell"><ng-container *ngTemplateOutlet="campaignSchedule"/></td>
+           <td hlmTd class="hidden tabular-nums xl:table-cell">{{campaignBookings(c.id)}}</td>
+           <td hlmTd class="hidden xl:table-cell"><ng-container *ngTemplateOutlet="campaignSaved"/></td>
+           <td hlmTd class="align-top xl:align-middle"><div class="flex items-center justify-end gap-1"><button hlmBtn variant="outline" size="sm" class="max-sm:min-h-11" (click)="bookingCampaign=c;editing=false">View bookings</button><button hlmBtn variant="ghost" size="icon-sm" class="max-sm:size-11" [hlmDropdownMenuTrigger]="campaignActions" align="end" [attr.aria-label]="'More actions for '+c.name"><ng-icon name="lucideEllipsis" aria-hidden="true"/></button></div><ng-template #campaignActions><div hlmDropdownMenu class="w-48"><button hlmDropdownMenuItem (triggered)="openEditor(c)">Edit campaign</button><button hlmDropdownMenuItem (triggered)="viewHistory(c)">View history</button>@if(c.status==='published'){<button hlmDropdownMenuItem [disabled]="busy()" (triggered)="requestCampaignStatus(c,'closed')">Close bookings</button>}@else{<button hlmDropdownMenuItem [disabled]="busy()" (triggered)="requestCampaignStatus(c,'published')">Publish campaign</button>}<div hlmDropdownMenuSeparator></div><button hlmDropdownMenuItem variant="destructive" [disabled]="busy()" (triggered)="deleteTarget=c">Delete campaign</button></div></ng-template></td>
+          </tr>
+         }
+        </tbody></table></div>
+       }@else{<div hlmEmpty><div hlmEmptyHeader><h3 hlmEmptyTitle>No campaigns found</h3><p hlmEmptyDescription>Create a campaign or change your filters.</p></div><div hlmEmptyContent><button hlmBtn (click)="openEditor()">Create a campaign</button></div></div>}
+      </div>
+      <div hlmCardFooter class="flex-wrap justify-between gap-3 border-t pt-4">@if(campaignLoading()){<div role="status" aria-label="Loading campaign pagination" aria-busy="true"><div hlmSkeleton class="h-4 w-32"></div></div>}@else if(!campaignError()){<p class="text-xs text-muted-foreground">{{campaignResultRange()}}</p>}<div class="flex gap-2"><button hlmBtn variant="outline" size="sm" [disabled]="campaignPage===0||campaignLoading()" (click)="campaignPageChange(-1)">Previous</button><button hlmBtn variant="outline" size="sm" [disabled]="(campaignPage+1)*10>=campaignTotal()||campaignLoading()" (click)="campaignPageChange(1)">Next</button></div></div>
+     </section>
+    }
+   </section>
+   }@else if(tab==='settings'){<section>
+    <section hlmCard class="max-w-2xl"><form #settingsForm="ngForm" (ngSubmit)="settingsForm.valid && saveSbus()"><div hlmCardContent><hlm-field><label hlmFieldLabel for="sbu-settings">Business units</label>@if(campaignLoading()){<div hlmSkeleton class="h-9 w-full" role="status" aria-label="Loading business units" aria-busy="true"></div>}@else{<input hlmInput id="sbu-settings" name="sbus" [(ngModel)]="sbus" required placeholder="Technology, CXO, Other">}<p hlmFieldDescription>These are the units employees can choose when booking. Separate them with commas.</p></hlm-field></div><div hlmCardFooter class="border-t pt-4"><button hlmBtn type="submit" [disabled]="busy()||campaignLoading()||!!campaignError()||settingsForm.invalid">{{busy() ? 'Saving…' : 'Save settings'}}</button></div></form></section>
+   </section>
+  }@else if(tab==='admins'){<admin-users [currentEmail]="profileEmail()" (saved)="notify($event)" (profileChanged)="refreshProfile()"/>}
+  @else if(tab==='bookings'){
+   @if(!bookingCampaign){<section hlmCard class="max-w-lg"><div hlmCardContent class="pt-6"><hlm-field><label hlmFieldLabel for="bookings-campaign">Campaign</label>@if(bookingChoicesLoading()){<div hlmSkeleton class="h-9 w-full" role="status" aria-label="Loading campaigns"></div>}@else if(bookingChoicesError()){<div hlmAlert variant="destructive"><p hlmAlertDescription>{{bookingChoicesError()}}</p><button hlmBtn variant="outline" (click)="loadBookingChoices()">Try again</button></div>}@else{<hlm-select [itemToString]="bookingCampaignLabel" class="w-full" [(ngModel)]="bookingSelection" (ngModelChange)="selectBookingCampaign()"><hlm-select-trigger buttonId="bookings-campaign" class="w-full"><hlm-select-value placeholder="Select a campaign"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal><hlm-select-item value="">Select a campaign</hlm-select-item>@for(c of bookingChoices();track c.id){<hlm-select-item [value]="c.id">{{c.name}}</hlm-select-item>}</hlm-select-content></hlm-select>}</hlm-field></div></section>}
+   @if(bookingCampaign){@for(c of [bookingCampaign];track c.id){<admin-bookings [campaign]="c" [campaignChoices]="bookingChoices()" (campaignChange)="bookingSelection=$event;selectBookingCampaign()" (back)="bookingCampaign=null;bookingSelection=''" (saved)="notify($event);load()"/>}}
+
+  }
+  </div>
+ }
+</div></main></div>
+<hlm-dialog #historyDialog>
+ <hlm-dialog-content *hlmDialogPortal class="max-h-[85dvh] overflow-y-auto sm:max-w-2xl">
+  <hlm-dialog-header><h2 hlmDialogTitle>Campaign history</h2><p hlmDialogDescription>{{historyCampaign?.name}} · Most recent activity first</p></hlm-dialog-header>
+  <p class="text-xs text-muted-foreground">All times are in Mauritius time.</p>
+  @if(historyLoading()){
+   <div role="status" aria-label="Loading history" aria-busy="true" class="space-y-6">
+    @for(i of [1,2,3,4];track i){<div aria-hidden="true" class="flex gap-3"><div hlmSkeleton class="size-8 shrink-0 rounded-full"></div><div class="flex-1 space-y-2"><div class="flex justify-between gap-4"><div hlmSkeleton class="h-4 w-40"></div><div hlmSkeleton class="h-3 w-12"></div></div><div hlmSkeleton class="h-3 w-36"></div></div></div>}
+   </div>
+  }@else if(historyError()){<div hlmAlert variant="destructive"><p hlmAlertDescription>{{historyError()}}</p></div>}
+  @else if(historyEvents().length){
+   @for(group of historyGroups();track group.day){
+    <section class="space-y-3" [attr.aria-label]="group.day"><h3 class="border-b pb-2 text-xs font-medium text-muted-foreground">{{group.day}}</h3>
+     <div hlmTrace class="gap-1">
+      @for(event of group.events;track event.id){
+       <div class="group/history-event relative flex gap-3 pb-4 last:pb-0">
+        <span hlmTraceIcon class="relative z-10 size-8 rounded-full bg-muted"><ng-icon name="lucideClock" size="16" /></span>
+        <span aria-hidden="true" class="absolute bottom-0 left-4 top-9 border-l group-last/history-event:hidden"></span>
+        <div hlmTraceCollapsible class="min-w-0 flex-1">
+         <button hlmTraceCollapsibleTrigger type="button" class="w-full gap-3 rounded-sm py-1 focus-visible:ring-2 focus-visible:ring-ring" [attr.aria-label]="historyAction(event)+' by '+event.actor_name+' at '+historyClock(event.occurred_at)">
+          <span class="min-w-0 flex-1"><span hlmTraceTitle class="block whitespace-normal font-medium text-foreground">{{historyAction(event)}}</span><span class="mt-1 block break-words text-xs text-muted-foreground">{{event.actor_name || 'Unknown administrator'}}</span></span>
+          <time hlmTraceDescription class="text-xs" [attr.datetime]="event.occurred_at">{{historyClock(event.occurred_at)}}</time>
+         </button>
+         <hlm-trace-collapsible-content><div class="mt-2 space-y-3 rounded-md border bg-muted/30 p-3 text-sm">
+          @if(historyDetails(event).length){<dl class="space-y-2">@for(detail of historyDetails(event);track detail.label){<div class="grid gap-1 sm:grid-cols-[140px_1fr]"><dt class="text-muted-foreground">{{detail.label}}</dt><dd class="break-words text-foreground">{{detail.value}}</dd></div>}</dl>}
+          @else{<p class="text-muted-foreground">This action was recorded without additional details.</p>}
+          @if(event.actor_email){<p class="break-all border-t pt-2 text-xs text-muted-foreground">Saved by {{event.actor_email}}</p>}
+         </div></hlm-trace-collapsible-content>
+        </div>
+       </div>
+      }
+     </div>
+    </section>
+   }
+  }@else{<div hlmEmpty><div hlmEmptyHeader><h3 hlmEmptyTitle>No saved activity</h3><p hlmEmptyDescription>Future saved changes will appear here.</p></div></div>}
+  <hlm-dialog-footer class="items-center sm:justify-between"><p class="text-xs text-muted-foreground">Showing up to 200 saved actions.</p><button hlmBtn variant="outline" type="button" (click)="historyDialog.close()">Close</button></hlm-dialog-footer>
+ </hlm-dialog-content>
+</hlm-dialog>
+<hlm-dialog #dateDialog [disableClose]="busy()" (closed)="dateDraft=null">
+ <hlm-dialog-content *hlmDialogPortal class="max-h-[90dvh] overflow-y-auto sm:max-w-lg"><hlm-dialog-header><h2 hlmDialogTitle>{{dateDraft?.sessionId ? 'Edit massage date' : 'Add massage date'}}</h2><p hlmDialogDescription>Configure the schedule and number of places. All times are in Mauritius.</p></hlm-dialog-header>
+  @if(dateDraft){<form #dateForm="ngForm" class="space-y-5" (ngSubmit)="dateForm.valid && applyDate()"><hlm-field-group class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+   <hlm-field class="col-span-2 sm:col-span-1"><label hlmFieldLabel for="massage-date">Date</label><hlm-date-picker name="date" [ngModel]="pickerDate(dateDraft.date)" (ngModelChange)="setPickerDate($event)" [formatDate]="formatPickerDate" captionLayout="dropdown" autoCloseOnSelect required><hlm-date-picker-trigger buttonId="massage-date" class="w-full">Pick a date</hlm-date-picker-trigger></hlm-date-picker></hlm-field>
+   <hlm-field><label hlmFieldLabel for="date-start">Start</label><input type="hidden" name="start" [(ngModel)]="dateDraft.start" required><hlm-popover align="start" [state]="timeMenu==='start' ? 'open' : 'closed'" (stateChanged)="timeMenu=$event==='open' ? 'start' : ''"><button hlmBtn variant="outline" type="button" id="date-start" hlmPopoverTrigger class="w-full justify-between">{{dateDraft.start}}<ng-icon name="lucideClock" aria-hidden="true"/></button><div hlmPopoverContent *hlmPopoverPortal class="w-64 gap-4"><p class="text-sm font-medium">Start time · 24-hour</p><div class="grid grid-cols-2 gap-3"><hlm-field><label hlmFieldLabel for="start-hour">Hour</label><hlm-select class="w-full" [ngModel]="timePart('start',0)" (ngModelChange)="setTimePart('start',0,$event)" [ngModelOptions]="{standalone:true}"><hlm-select-trigger buttonId="start-hour" class="w-full"><hlm-select-value placeholder="Select an option"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal>@for(hour of timeHours;track hour){<hlm-select-item [value]="hour">{{hour}}</hlm-select-item>}</hlm-select-content></hlm-select></hlm-field><hlm-field><label hlmFieldLabel for="start-minute">Minute</label><hlm-select class="w-full" [ngModel]="timePart('start',1)" (ngModelChange)="setTimePart('start',1,$event)" [ngModelOptions]="{standalone:true}"><hlm-select-trigger buttonId="start-minute" class="w-full"><hlm-select-value placeholder="Select an option"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal>@for(minute of timeMinutes;track minute){<hlm-select-item [value]="minute">{{minute}}</hlm-select-item>}</hlm-select-content></hlm-select></hlm-field></div><button hlmBtn type="button" (click)="timeMenu=''">Done</button></div></hlm-popover></hlm-field>
+   <hlm-field><label hlmFieldLabel for="date-end">End</label><input type="hidden" name="end" [(ngModel)]="dateDraft.end" required><hlm-popover align="start" [state]="timeMenu==='end' ? 'open' : 'closed'" (stateChanged)="timeMenu=$event==='open' ? 'end' : ''"><button hlmBtn variant="outline" type="button" id="date-end" hlmPopoverTrigger class="w-full justify-between">{{dateDraft.end}}<ng-icon name="lucideClock" aria-hidden="true"/></button><div hlmPopoverContent *hlmPopoverPortal class="w-64 gap-4"><p class="text-sm font-medium">End time · 24-hour</p><div class="grid grid-cols-2 gap-3"><hlm-field><label hlmFieldLabel for="end-hour">Hour</label><hlm-select class="w-full" [ngModel]="timePart('end',0)" (ngModelChange)="setTimePart('end',0,$event)" [ngModelOptions]="{standalone:true}"><hlm-select-trigger buttonId="end-hour" class="w-full"><hlm-select-value placeholder="Select an option"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal>@for(hour of timeHours;track hour){<hlm-select-item [value]="hour">{{hour}}</hlm-select-item>}</hlm-select-content></hlm-select></hlm-field><hlm-field><label hlmFieldLabel for="end-minute">Minute</label><hlm-select class="w-full" [ngModel]="timePart('end',1)" (ngModelChange)="setTimePart('end',1,$event)" [ngModelOptions]="{standalone:true}"><hlm-select-trigger buttonId="end-minute" class="w-full"><hlm-select-value placeholder="Select an option"/></hlm-select-trigger><hlm-select-content *hlmSelectPortal>@for(minute of timeMinutes;track minute){<hlm-select-item [value]="minute">{{minute}}</hlm-select-item>}</hlm-select-content></hlm-select></hlm-field></div><button hlmBtn type="button" (click)="timeMenu=''">Done</button></div></hlm-popover></hlm-field>
+   <hlm-field><label hlmFieldLabel for="date-duration">Duration (min)</label><input hlmInput id="date-duration" type="number" name="duration" [(ngModel)]="dateDraft.duration" min="5" max="180" required></hlm-field>
+   <hlm-field><label hlmFieldLabel for="date-break">Break (min)</label><input hlmInput id="date-break" type="number" name="break" [(ngModel)]="dateDraft.breakDuration" min="0" max="120" required></hlm-field>
+   <hlm-field><label hlmFieldLabel for="date-capacity">Places per slot</label><input hlmInput id="date-capacity" type="number" name="capacity" [(ngModel)]="dateDraft.capacity" min="1" max="100" required></hlm-field>
+  </hlm-field-group><p class="text-sm text-muted-foreground">{{datePreview(dateDraft)}} time slots · {{datePreview(dateDraft)*dateDraft.capacity}} places</p><p class="text-xs text-muted-foreground">Save this date, then save the campaign to apply your changes.</p>@if(dateError()){<div hlmAlert variant="destructive"><p hlmAlertDescription>{{dateError()}}</p></div>}<hlm-dialog-footer><button hlmBtn variant="outline" type="button" hlmDialogClose>Cancel</button><button hlmBtn type="submit" [disabled]="dateForm.invalid||datePreview(dateDraft)<1">Save</button></hlm-dialog-footer></form>}
+ </hlm-dialog-content>
+</hlm-dialog>
+<hlm-alert-dialog #removeDateDialog (closed)="pendingDateRemoval=''">
+ <hlm-alert-dialog-content *hlmAlertDialogPortal><hlm-alert-dialog-header><h2 hlmAlertDialogTitle>Remove this date?</h2><p hlmAlertDialogDescription>The date and its time slots will be removed when you save the campaign.</p></hlm-alert-dialog-header><hlm-alert-dialog-footer><button variant="outline" hlmAlertDialogCancel>Keep date</button><button hlmAlertDialogAction variant="destructive" (click)="confirmDateRemoval()">Remove date</button></hlm-alert-dialog-footer></hlm-alert-dialog-content>
+</hlm-alert-dialog>
+<hlm-alert-dialog [state]="pendingSaveStatus!==null ? 'open' : 'closed'" (closed)="pendingSaveStatus=null">
+ <hlm-alert-dialog-content *hlmAlertDialogPortal><hlm-alert-dialog-header><h2 hlmAlertDialogTitle>{{campaignSaveAction==='Save and publish'?'Save and publish campaign?':campaignSaveAction==='Save and unpublish'?'Save and unpublish campaign?':'Save campaign changes?'}}</h2><p hlmAlertDialogDescription>{{campaignSaveDescription}}@if(removedSessions.length){ {{removedSessions.length}} scheduled {{removedSessions.length===1?'date':'dates'}} will be removed.}</p></hlm-alert-dialog-header><hlm-alert-dialog-footer><button variant="outline" hlmAlertDialogCancel>Keep editing</button><button hlmAlertDialogAction (click)="acceptSave()">{{campaignSaveAction==='Save and publish'?'Confirm and publish':campaignSaveAction==='Save and unpublish'?'Confirm and unpublish':'Confirm save'}}</button></hlm-alert-dialog-footer></hlm-alert-dialog-content>
+</hlm-alert-dialog>
+@if(deleteTarget){<hlm-alert-dialog state="open" [disableClose]="busy()" (closed)="deleteTarget=null"><hlm-alert-dialog-content *hlmAlertDialogPortal><hlm-alert-dialog-header><h2 hlmAlertDialogTitle>Delete campaign?</h2><p hlmAlertDialogDescription>“{{deleteTarget.name}}” and its dates will be permanently removed. Campaigns with booking history cannot be deleted.</p></hlm-alert-dialog-header><hlm-alert-dialog-footer><button variant="outline" hlmAlertDialogCancel [disabled]="busy()">Keep campaign</button><button hlmAlertDialogAction variant="destructive" (click)="deleteCampaign()" [disabled]="busy()">{{busy() ? 'Deleting…' : 'Delete permanently'}}</button></hlm-alert-dialog-footer></hlm-alert-dialog-content></hlm-alert-dialog>}
+<hlm-toaster position="top-right" [visibleToasts]="1" [closeButton]="true"/>
+
+<hlm-alert-dialog #signOutDialog [disableClose]="signingOut()">
+ <hlm-alert-dialog-content *hlmAlertDialogPortal>
+  <hlm-alert-dialog-header><h2 hlmAlertDialogTitle>Sign out?</h2><p hlmAlertDialogDescription>You’ll need a sign-in link to access administration again.@if(editing){ Any unsaved campaign changes will be lost.}</p></hlm-alert-dialog-header>
+  <hlm-alert-dialog-footer><button hlmAlertDialogCancel variant="outline" [disabled]="signingOut()">Cancel</button><button hlmAlertDialogAction [disabled]="signingOut()" (click)="logout()">{{signingOut() ? 'Signing out…' : 'Sign out'}}</button></hlm-alert-dialog-footer>
+ </hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<hlm-alert-dialog #campaignStatusDialog [disableClose]="busy()" (closed)="statusTarget=null">
+ <hlm-alert-dialog-content *hlmAlertDialogPortal>
+  <hlm-alert-dialog-header><h2 hlmAlertDialogTitle>{{statusTarget?.status==='closed'?'Close bookings?':'Publish campaign?'}}</h2><p hlmAlertDialogDescription>@if(statusTarget?.status==='closed'){Employees will no longer be able to make new bookings for “{{statusTarget?.name}}”. Existing bookings will be kept.}@else{“{{statusTarget?.name}}” will be visible to employees and open for bookings.}</p></hlm-alert-dialog-header>
+  @if(statusError()){<div hlmAlert variant="destructive"><h3 hlmAlertTitle>Campaign could not be updated</h3><p hlmAlertDescription>{{statusError()}}</p></div>}
+  <hlm-alert-dialog-footer><button hlmAlertDialogCancel variant="outline" [disabled]="busy()">Cancel</button><button hlmAlertDialogAction [disabled]="busy()" (click)="change()">{{busy()?'Updating…':statusTarget?.status==='closed'?'Close bookings':'Publish campaign'}}</button></hlm-alert-dialog-footer>
+ </hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<hlm-alert-dialog #discardDateDialog (closed)="discardDateTarget=null">
+ <hlm-alert-dialog-content *hlmAlertDialogPortal>
+  <hlm-alert-dialog-header><h2 hlmAlertDialogTitle>Discard date changes?</h2><p hlmAlertDialogDescription>{{discardDateTarget?.sessionId ? 'Your changes to this date will be discarded. The saved date will stay unchanged.' : 'This new date will be removed from your unsaved campaign.'}}</p></hlm-alert-dialog-header>
+  @if(discardDateTarget){<p class="text-sm font-medium">{{readableDate(discardDateTarget.date)}} · {{discardDateTarget.start}}–{{discardDateTarget.end}}</p>}
+  <hlm-alert-dialog-footer><button hlmAlertDialogCancel variant="outline">Keep date</button><button hlmAlertDialogAction variant="destructive" (click)="confirmDateDiscard()">Discard changes</button></hlm-alert-dialog-footer>
+ </hlm-alert-dialog-content>
+</hlm-alert-dialog>
