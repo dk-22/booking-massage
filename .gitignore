@@ -55,4 +55,3 @@ Thumbs.db
 !.env.example
 *.pem
 *.key
-/legacy/firebase/functions/lib/

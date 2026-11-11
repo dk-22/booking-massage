@@ -77,7 +77,7 @@ Admin RPCs check the authenticated account's verified email against `admin_email
 
 ## Deployment and database verification
 
-Build with `npm run build`. Host `dist/booking-massage/browser` on a static host that serves `index.html` for `/bk-admin-codex` and `/bk-admin-codex/login`. Apply migrations separately in Supabase. Firebase files under `legacy/firebase` are references only.
+Build with `npm run build`. Host `dist/booking-massage/browser` on a static host that serves `index.html` for `/bk-admin-codex` and `/bk-admin-codex/login`. Apply migrations separately in Supabase.
 
 `supabase/tests/booking.py` and the SQL fixtures validate booking concurrency, idempotency, authorization, editing, history and loading behavior. Run these only against a disposable migrated PostgreSQL database with the required Supabase auth roles/functions. Do not run fixtures against production.
 
